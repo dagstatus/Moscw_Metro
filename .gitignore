@@ -1,0 +1,10 @@
+build/
+app/build/
+.gradle/
+.idea/
+local.properties
+*.iml
+# Ключ подписи хранится только у владельца, в репозиторий не попадает
+keystore/
+# Собранные APK
+dist/*.apk

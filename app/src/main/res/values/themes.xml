@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Тема по умолчанию следует системной (values-night переопределяет AppTheme). -->
+    <style name="AppTheme" parent="ThemeLight" />
+
+    <style name="ThemeLight" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">#0072BA</item>
+        <item name="android:colorAccent">#0072BA</item>
+        <item name="android:windowBackground">@color/bg_light</item>
+        <item name="android:statusBarColor">#00000000</item>
+        <item name="android:navigationBarColor">#00000000</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="ThemeDark" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">#4FA3E0</item>
+        <item name="android:colorAccent">#4FA3E0</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:statusBarColor">#00000000</item>
+        <item name="android:navigationBarColor">#00000000</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>
