@@ -72,7 +72,7 @@ public class Build {
     // ------------------------------------------------------------------ model
 
     static class Line {
-        String id, name, color, type;
+        String id, name, color, type, emoji;
         boolean ring;
         double wait;
         List<Integer> stations = new ArrayList<>();
@@ -119,6 +119,7 @@ public class Build {
             l.color = r.getOrDefault("color", "").trim();
             l.type = r.getOrDefault("type", "metro").trim().toLowerCase(Locale.ROOT);
             l.ring = isTrue(r.get("ring"));
+            l.emoji = r.getOrDefault("emoji", "").trim();
             l.wait = parseD(r.get("wait"), 2, "lines.csv " + r.get("_row") + " wait");
             if (!l.color.matches("#[0-9A-Fa-f]{6}")) errors.add("lines.csv строка " + r.get("_row") + ": цвет должен быть вида #RRGGBB, сейчас «" + l.color + "»");
             if (!Set.of("metro", "mcc", "mcd").contains(l.type)) errors.add("lines.csv строка " + r.get("_row") + ": type должен быть metro, mcc или mcd");
@@ -279,7 +280,7 @@ public class Build {
             sb.append(first ? "\n" : ",\n");
             first = false;
             sb.append("{\"id\":").append(js(l.id)).append(",\"name\":").append(js(l.name)).append(",\"color\":").append(js(l.color))
-              .append(",\"type\":").append(js(l.type)).append(",\"ring\":").append(l.ring).append(",\"wait\":").append(num(l.wait)).append(",\"paths\":[");
+              .append(",\"type\":").append(js(l.type)).append(",\"ring\":").append(l.ring).append(",\"wait\":").append(num(l.wait)).append(",\"emoji\":").append(js(l.emoji)).append(",\"paths\":[");
             sb.append(m.paths.get(l.id).stream().map(p -> p.stream().map(String::valueOf).collect(Collectors.joining(",", "[", "]"))).collect(Collectors.joining(",")));
             sb.append("]}");
         }
@@ -295,10 +296,13 @@ public class Build {
         sb.append("],\n\"transfers\":[");
         sb.append(m.transfers.stream().map(e -> "[" + e.a + "," + e.b + "," + num(e.min) + "]").collect(Collectors.joining(",")));
         sb.append("]\n}\n");
-        Path out = ROOT.resolve("app/src/main/assets/metro.json");
-        Files.createDirectories(out.getParent());
-        Files.writeString(out, sb.toString(), StandardCharsets.UTF_8);
-        System.out.println("Данные для приложения: " + ROOT.relativize(out));
+        // одни и те же данные для Android-приложения и для Telegram (Mini App в docs/, бот читает оттуда же)
+        for (String target : new String[]{"app/src/main/assets/metro.json", "docs/metro.json"}) {
+            Path out = ROOT.resolve(target);
+            Files.createDirectories(out.getParent());
+            Files.writeString(out, sb.toString(), StandardCharsets.UTF_8);
+            System.out.println("Данные записаны: " + target);
+        }
     }
 
     static Path writePreview(Model m) throws IOException {

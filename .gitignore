@@ -8,3 +8,7 @@ local.properties
 keystore/
 # Собранные APK
 dist/*.apk
+
+# Токен бота
+bot/config.ini
+__pycache__/

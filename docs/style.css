@@ -1,0 +1,60 @@
+:root {
+  --bg: #F6F6F3; --text: #1C1C1F; --secondary: #5F6368; --panel: #FFFFFF; --field: #F1F2F4;
+  --divider: #E3E3E3; --button: rgba(255,255,255,.95); --accent: #0066B3; --from: #1E8E3E; --to: #D93025;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+:root[data-theme="dark"] {
+  --bg: #121316; --text: #ECECEE; --secondary: #A3A7AD; --panel: #1E2024; --field: #2B2E33;
+  --divider: #33363B; --button: rgba(36,39,43,.95); --accent: #6CB4F0; --from: #4CC274; --to: #FF6B5E;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+  font: 16px/1.3 -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; overscroll-behavior: none; }
+#map { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+
+#tools { position: fixed; top: calc(10px + var(--tg-content-safe-area-inset-top, 0px)); right: 10px; display: flex; flex-direction: column; gap: 10px; }
+.round { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--button); box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  display: grid; place-items: center; cursor: pointer; padding: 0; }
+.round svg, .icon svg { width: 24px; height: 24px; fill: var(--text); }
+.icon svg { fill: var(--secondary); }
+
+#panel { position: fixed; left: 10px; right: 10px; bottom: calc(10px + var(--safe-bottom)); background: var(--panel);
+  border-radius: 18px; padding: 10px 12px; box-shadow: 0 4px 18px rgba(0,0,0,.18); max-width: 560px; margin: 0 auto; }
+.row { display: flex; align-items: center; gap: 10px; }
+.row + .row { margin-top: 8px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; margin-left: 4px; }
+.dot.from { background: var(--from); } .dot.to { background: var(--to); }
+#panel input { flex: 1; min-width: 0; height: 46px; border: 0; border-radius: 12px; background: var(--field); color: var(--text);
+  padding: 0 14px; font-size: 16px; outline: none; }
+#panel input::placeholder { color: var(--secondary); }
+.icon { width: 44px; height: 44px; border: 0; background: none; display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
+
+#suggest { margin-top: 8px; max-height: 40vh; overflow-y: auto; border-top: 1px solid var(--divider); }
+#suggest .item { padding: 9px 6px; cursor: pointer; border-bottom: 1px solid var(--divider); }
+#suggest .item:last-child { border-bottom: 0; }
+#suggest .sub { font-size: 12.5px; color: var(--secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dots { letter-spacing: 1px; margin-right: 6px; }
+
+#route { max-height: 42vh; overflow-y: auto; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--divider); }
+#route .head { padding: 0 4px 6px; }
+#route .total { font-size: 22px; font-weight: 600; }
+#route .meta { color: var(--secondary); font-size: 14px; margin-left: 8px; }
+#route .ride { display: flex; gap: 12px; padding-bottom: 8px; }
+#route .bar { width: 6px; border-radius: 3px; margin: 2px 0 2px 3px; flex: none; }
+#route .line { font-size: 13px; font-weight: 600; }
+#route .stations { font-size: 15.5px; }
+#route .info, #route .walk { font-size: 13px; color: var(--secondary); }
+#route .walk { padding: 2px 4px 8px; font-size: 14px; }
+#route .msg { color: var(--secondary); padding: 4px; }
+
+#sheet, #about { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: flex; align-items: flex-end; justify-content: center; z-index: 10; }
+#sheet[hidden], #about[hidden], #suggest[hidden], #route[hidden] { display: none; }
+.sheet-card { background: var(--panel); width: 100%; max-width: 560px; border-radius: 18px 18px 0 0; padding: 18px 18px calc(18px + var(--safe-bottom)); }
+#sheetTitle { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+#sheetTitle .sub { font-size: 13px; font-weight: 400; color: var(--secondary); }
+.sheet-card button { display: block; width: 100%; margin-top: 10px; height: 48px; border: 0; border-radius: 12px; font-size: 16px;
+  background: var(--field); color: var(--text); cursor: pointer; }
+#sheetFrom { box-shadow: inset 4px 0 0 var(--from); } #sheetTo { box-shadow: inset 4px 0 0 var(--to); }
+#aboutBody { max-height: 80vh; overflow-y: auto; font-size: 14.5px; }
+#aboutBody .src { color: var(--secondary); font-size: 12.5px; margin: 10px 0; }
+#aboutBody .ln { padding: 2px 0; }

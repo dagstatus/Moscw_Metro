@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Метро Москвы</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="map" aria-label="Схема метро"></canvas>
+
+<div id="tools">
+  <button id="btnTheme" class="round" title="Тема оформления" aria-label="Тема оформления">
+    <svg viewBox="0 0 24 24"><path d="M20,15.31L23.31,12 20,8.69V4h-4.69L12,0.69 8.69,4H4v4.69L0.69,12 4,15.31V20h4.69L12,23.31 15.31,20H20v-4.69zM12,18V6c3.31,0 6,2.69 6,6s-2.69,6 -6,6z"/></svg>
+  </button>
+  <button id="btnFit" class="round" title="Показать всю схему" aria-label="Показать всю схему">
+    <svg viewBox="0 0 24 24"><path d="M7,14H5v5h5v-2H7v-3zM5,10h2V7h3V5H5v5zM17,17h-3v2h5v-5h-2v3zM14,5v2h3v3h2V5h-5z"/></svg>
+  </button>
+  <button id="btnInfo" class="round" title="О схеме" aria-label="О схеме">
+    <svg viewBox="0 0 24 24"><path d="M11,7h2v2h-2zM11,11h2v6h-2zM12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8z"/></svg>
+  </button>
+</div>
+
+<div id="panel">
+  <div id="route" hidden></div>
+  <div class="row">
+    <span class="dot from"></span>
+    <input id="from" placeholder="Откуда" autocomplete="off" spellcheck="false">
+    <button id="btnClear" class="icon" title="Очистить" aria-label="Очистить">
+      <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"/></svg>
+    </button>
+  </div>
+  <div class="row">
+    <span class="dot to"></span>
+    <input id="to" placeholder="Куда" autocomplete="off" spellcheck="false">
+    <button id="btnSwap" class="icon" title="Поменять местами" aria-label="Поменять местами">
+      <svg viewBox="0 0 24 24"><path d="M16,17.01V10h-2v7.01h-3L15,21l4,-3.99h-3zM9,3L5,6.99h3V14h2V6.99h3L9,3z"/></svg>
+    </button>
+  </div>
+  <div id="suggest" hidden></div>
+</div>
+
+<div id="sheet" hidden>
+  <div class="sheet-card">
+    <div id="sheetTitle"></div>
+    <button id="sheetFrom">Отсюда</button>
+    <button id="sheetTo">Сюда</button>
+  </div>
+</div>
+
+<div id="about" hidden>
+  <div class="sheet-card" id="aboutBody"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
