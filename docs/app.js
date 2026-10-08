@@ -144,6 +144,25 @@ const dotsHtml = colors => '<span class="dots">' + colors.map(c => `<span style=
 
 // ---------------------------------------------------------------- схема
 
+// Плавная линия через станции (сплайн Катмулла — Рома → кривые Безье), как в Android-версии.
+function smoothPath(ctx, d, idx) {
+  const n = idx.length;
+  if (!n) return;
+  const closed = n > 3 && idx[0] === idx[n - 1], m = closed ? n - 1 : n;
+  const P = idx.slice(0, m).map(i => d.stations[i]);
+  ctx.moveTo(P[0].x, P[0].y);
+  const segs = closed ? m : m - 1;
+  for (let k = 0; k < segs; k++) {
+    const a = P[closed ? (k - 1 + m) % m : Math.max(0, k - 1)], b = P[k], c = P[(k + 1) % m], e = P[closed ? (k + 2) % m : Math.min(m - 1, k + 2)];
+    const seg = Math.hypot(c.x - b.x, c.y - b.y), max = seg * 0.42;
+    let t1x = (c.x - a.x) / 6, t1y = (c.y - a.y) / 6, t2x = (e.x - b.x) / 6, t2y = (e.y - b.y) / 6;
+    const l1 = Math.hypot(t1x, t1y), l2 = Math.hypot(t2x, t2y);
+    if (l1 > max) { t1x *= max / l1; t1y *= max / l1; }
+    if (l2 > max) { t2x *= max / l2; t2y *= max / l2; }
+    ctx.bezierCurveTo(b.x + t1x, b.y + t1y, c.x - t2x, c.y - t2y, c.x, c.y);
+  }
+}
+
 const PALETTE = {
   light: { bg: '#F6F6F3', text: '#1C1C1F', connector: '#C4C4C4', from: '#1E8E3E', to: '#D93025', dim: 'rgba(246,246,243,0.75)' },
   dark: { bg: '#121316', text: '#E8E8EA', connector: '#55585E', from: '#4CC274', to: '#FF6B5E', dim: 'rgba(18,19,22,0.78)' },
@@ -310,7 +329,7 @@ class MapView {
     return res;
   }
 
-  lineWidth() { return Math.max(1.7 / this.scale, Math.min(5.5 / this.scale, 6)); }
+  lineWidth() { return Math.max(2.3 / this.scale, Math.min(6.5 / this.scale, 7.5)); }
 
   draw() {
     if (this.raf) return;
@@ -332,7 +351,7 @@ class MapView {
     for (const l of d.lines) {
       const w = l.type === 'metro' ? lw : lw * 0.85;
       const path = new Path2D();
-      for (const pth of l.paths) pth.forEach((i, k) => { const s = d.stations[i]; k ? path.lineTo(s.x, s.y) : path.moveTo(s.x, s.y); });
+      for (const pth of l.paths) smoothPath(path, d, pth);
       ctx.strokeStyle = l.color; ctx.lineWidth = w; ctx.stroke(path);
       if (l.type !== 'metro') { ctx.strokeStyle = p.bg; ctx.lineWidth = w * 0.38; ctx.stroke(path); }
     }
@@ -355,7 +374,7 @@ class MapView {
       const rl = lw * 1.35, rr = rs * 1.2;
       for (const st of this.route.steps) {
         ctx.beginPath();
-        st.stations.forEach((i, k) => { const s = d.stations[i]; k ? ctx.lineTo(s.x, s.y) : ctx.moveTo(s.x, s.y); });
+        if (st.walk) st.stations.forEach((i, k) => { const s = d.stations[i]; k ? ctx.lineTo(s.x, s.y) : ctx.moveTo(s.x, s.y); }); else smoothPath(ctx, d, st.stations);
         if (st.walk) { ctx.strokeStyle = p.text; ctx.lineWidth = rl * 0.45; ctx.setLineDash([rl * 0.6, rl * 0.9]); }
         else { ctx.strokeStyle = d.lines[st.line].color; ctx.lineWidth = rl; ctx.setLineDash([]); }
         ctx.stroke();
@@ -399,7 +418,7 @@ class MapView {
 
   layoutLabels(s) {
     const d = this.d;
-    const rsPx = Math.max(1.7, Math.min(5.5, 6 * s)) * 0.82 * (this.route ? 1.2 : 1), gap = rsPx + 3.5, h = this.textH;
+    const rsPx = Math.max(2.3, Math.min(6.5, 7.5 * s)) * 0.82 * (this.route ? 1.2 : 1), gap = rsPx + 3.5, h = this.textH;
     const forced = new Set(), ends = new Set();
     if (this.from) { forced.add(this.from.index); ends.add(this.from.index); }
     if (this.to) { forced.add(this.to.index); ends.add(this.to.index); }

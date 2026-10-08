@@ -150,12 +150,7 @@ final class MetroMapView extends View {
         linePaths = new Path[d.lines.length];
         for (int i = 0; i < d.lines.length; i++) {
             Path p = new Path();
-            for (int[] path : d.lines[i].paths) {
-                for (int k = 0; k < path.length; k++) {
-                    MetroData.Station s = d.stations[path[k]];
-                    if (k == 0) p.moveTo(s.x, s.y); else p.lineTo(s.x, s.y);
-                }
-            }
+            for (int[] path : d.lines[i].paths) addSmooth(p, path);
             linePaths[i] = p;
         }
         isTransfer = new boolean[d.stations.length];
@@ -213,6 +208,33 @@ final class MetroMapView extends View {
         this.route = route;
         labelCache.clear();
         invalidate();
+    }
+
+    /**
+     * Плавная линия через станции (сплайн Катмулла — Рома, переведённый в кривые Безье).
+     * Длина «ручек» ограничена, чтобы на неравных перегонах линия не делала петель.
+     */
+    private void addSmooth(Path p, int[] idx) {
+        int n = idx.length;
+        if (n == 0) return;
+        boolean closed = n > 3 && idx[0] == idx[n - 1];
+        int m = closed ? n - 1 : n;
+        float[] x = new float[m], y = new float[m];
+        for (int k = 0; k < m; k++) { x[k] = d.stations[idx[k]].x; y[k] = d.stations[idx[k]].y; }
+        p.moveTo(x[0], y[0]);
+        int segs = closed ? m : m - 1;
+        for (int k = 0; k < segs; k++) {
+            int i1 = k, i2 = (k + 1) % m;
+            int i0 = closed ? (k - 1 + m) % m : Math.max(0, k - 1);
+            int i3 = closed ? (k + 2) % m : Math.min(m - 1, k + 2);
+            float seg = (float) Math.hypot(x[i2] - x[i1], y[i2] - y[i1]);
+            float t1x = (x[i2] - x[i0]) / 6f, t1y = (y[i2] - y[i0]) / 6f;
+            float t2x = (x[i3] - x[i1]) / 6f, t2y = (y[i3] - y[i1]) / 6f;
+            float l1 = (float) Math.hypot(t1x, t1y), l2 = (float) Math.hypot(t2x, t2y), max = seg * 0.42f;
+            if (l1 > max) { t1x *= max / l1; t1y *= max / l1; }
+            if (l2 > max) { t2x *= max / l2; t2y *= max / l2; }
+            p.cubicTo(x[i1] + t1x, y[i1] + t1y, x[i2] - t2x, y[i2] - t2y, x[i2], y[i2]);
+        }
     }
 
     // ------------------------------------------------------------ геометрия
@@ -338,7 +360,7 @@ final class MetroMapView extends View {
 
     // ------------------------------------------------------------ рисование
 
-    private float lineWidth() { return clamp(6f, 1.7f * density / scale, 5.5f * density / scale); }
+    private float lineWidth() { return clamp(7.5f, 2.3f * density / scale, 6.5f * density / scale); }
 
     private float stationRadius() { return lineWidth() * 0.82f; }
 
@@ -422,9 +444,15 @@ final class MetroMapView extends View {
                 linePaint.setPathEffect(null);
             }
             Path p = new Path();
-            for (int k = 0; k < st.stations.size(); k++) {
-                MetroData.Station s = d.stations[st.stations.get(k)];
-                if (k == 0) p.moveTo(s.x, s.y); else p.lineTo(s.x, s.y);
+            int[] idx = new int[st.stations.size()];
+            for (int k = 0; k < idx.length; k++) idx[k] = st.stations.get(k);
+            if (st.walk) {
+                for (int k = 0; k < idx.length; k++) {
+                    MetroData.Station s = d.stations[idx[k]];
+                    if (k == 0) p.moveTo(s.x, s.y); else p.lineTo(s.x, s.y);
+                }
+            } else {
+                addSmooth(p, idx);
             }
             c.drawPath(p, linePaint);
         }
@@ -484,7 +512,7 @@ final class MetroMapView extends View {
 
     /** Жадная раскладка подписей без наложений для данного масштаба. Координаты считаются в пикселях экрана. */
     private Labels layoutLabels(float s) {
-        float rsPx = clamp(6f * s, 1.7f * density, 5.5f * density) * 0.82f * (route != null ? 1.2f : 1f);
+        float rsPx = clamp(7.5f * s, 2.3f * density, 6.5f * density) * 0.82f * (route != null ? 1.2f : 1f);
         float gap = rsPx + 3.5f * density;
         Paint.FontMetrics fm = textPaint.getFontMetrics();
         float h = fm.descent - fm.ascent;
